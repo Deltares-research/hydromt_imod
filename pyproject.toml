@@ -1,0 +1,58 @@
+[build-system]
+requires = ["flit_core >=3.2.0,<3.3"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "hydromt_imod"
+authors = [
+    {name = "Huite Bootsma", email = "huite.bootsma@deltares.nl"},
+    {name = "Mila Mahya", email = "mila.mahya@deltares.nl"},
+]
+dependencies = [
+    "imod",
+    "hydromt>=0.4.5",
+    "netcdf4",
+    "xarray",
+]
+requires-python = ">=3.8"
+readme = "README.rst"
+classifiers = [
+    # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ['version', 'description']
+
+[project.optional-dependencies]
+test = [
+	"pytest>=2.7.3",
+	"pytest-cov",
+	"black",
+]
+doc = [
+	"sphinx",
+]
+
+[project.urls]
+Documentation = "https://deltares.github.io/hydromt_imod/"
+Source = "https://github.com/Deltares/hydromt_imod"
+
+[project.entry-points."hydromt.models"]
+imod = "hydromt_imod.imod:ImodModel"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.flit.sdist]
+include = ["hydromt_imod"]
+exclude = ["docs", "examples", "envs", "tests", "binder", ".github", "sandbox"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
+]

@@ -13,6 +13,15 @@ dependencies = [
     "hydromt>=0.4.5",
     "netcdf4",
     "xarray",
+	"dask",
+    "geopandas >=0.8",
+    "numpy",
+    "pandas",
+    "pyflwdir>=0.5.5",
+    "pygeos",
+    "rasterio",
+    "scipy",
+    "toml",
 ]
 requires-python = ">=3.8"
 readme = "README.rst"
@@ -29,6 +38,8 @@ dynamic = ['version', 'description']
 
 [project.optional-dependencies]
 test = [
+	"testpath",
+    "responses",
 	"pytest>=2.7.3",
 	"pytest-cov",
 	"black",
@@ -36,10 +47,6 @@ test = [
 doc = [
 	"sphinx",
 ]
-
-[project.urls]
-Documentation = "https://deltares.github.io/hydromt_imod/"
-Source = "https://github.com/Deltares/hydromt_imod"
 
 [project.entry-points."hydromt.models"]
 imod = "hydromt_imod.imod:ImodModel"

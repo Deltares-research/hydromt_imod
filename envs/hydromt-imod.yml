@@ -2,50 +2,42 @@ name: hydromt-imod
 
 channels:
   - conda-forge
-  - defaults
+
+channels:
+  - conda-forge
 
 dependencies:
   - affine
+  - click
   - black
   - bottleneck
-  - cftime>=1
-  - contextily>=1
-  - cytoolz
+  - cartopy # to run examples
   - dask
+  - descartes # to run examples
+  - entrypoints
+  - flit>=3.2
+  - gdal>=3.1
   - geopandas
-  - graphviz
-  - hydromt
-  - python-graphviz
-  - flopy
-  - jinja2
-  - matplotlib
-  - meshzoo
+  - imod
+  - jupyter # to run examples
   - netcdf4
-  - numba>=0.50
+  - matplotlib # to run examples
+  - numba
   - numpy
+  - openpyxl
   - pandas
-  - pooch
+  - pcraster # optional
   - pip
-  - pip:
-    - pandamesh
-  - pydata-sphinx-theme
-  - pygeos
-  - pyproj
-  - pytest
-  - pytest-benchmark
-  - pytest-cov
-  - python>=3.7,<3.9
-  - pyvista
-  - rasterio>=1.0
+  - pyflwdir>=0.4.7
+  - pygeos>=0.8
+  - python>=3.7
+  - rasterio
+  - requests
   - scipy
-  - setuptools_scm
-  - scooby<=0.5.7
-  - sphinx
-  - sphinx-gallery
-  - toolz
-  - tqdm
-  - twine
-  - vtk>=9.0
-  - xarray>=0.15
-  - xugrid
+  - toml
+  - xarray
   - zarr
+  - pip:
+    - hydroengine
+    - git+https://github.com/Deltares/hydromt.git
+    - git+https://github.com/Deltares/hydromt_wflow.git

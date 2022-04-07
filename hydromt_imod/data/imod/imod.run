@@ -1,0 +1,30 @@
+# This is an example .run configuration file. It is used to run imod model
+# features, and can also be used to work towards an example of what we want the
+# configuration file to look like.
+
+casename = "imod"
+
+calendar = "proleptic_gregorian" 
+starttime = 2010-02-01T00:00:00 
+endtime = 2010-02-10T00:00:00
+time_units = "days since 1900-01-01 00:00:00" 
+timestepsecs = 86400 
+
+[input]
+path_forcing = "forcing.nc"
+path_static = "staticmaps.nc"
+
+# these are not directly part of the model
+
+# specify the internal IDs of the parameters which vary over time
+# the external name mapping needs to be below together with the other mappings
+forcing = [
+  "vertical.precipitation",
+  "vertical.potential_evaporation",
+]
+
+[model]
+type = "modflow6"
+
+[output]
+path = "run_default/output.nc"

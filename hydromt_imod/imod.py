@@ -3,10 +3,13 @@ import os
 import logging
 import numpy as np
 import xarray as xr
+import xugrid as xu
 import imod
+from typing import List
 
 import hydromt
-from hydromt.models.model_api import Model
+from hydromt.models import MeshModel
+from hydromt.models.model_grid import GridMixin
 
 from . import DATADIR
 
@@ -14,28 +17,26 @@ __all__ = ["ImodModel"]
 
 logger = logging.getLogger(__name__)
 
-
-class ImodModel(Model):
+# create class with mesh and grid attributes.
+class ImodModel(GridMixin, MeshModel):
     _NAME = "imod"
     # mapping of names from hydromt names to model variable names
-    _GEOMS = {}  
-    _FORCING = {}  
-    _MAPS = {} 
+    _GEOMS = {}
+    _FORCING = {}
+    _MAPS = {}
     _FOLDERS = []
-    _CLI_ARGS = {"region": "setup_region", "res": "setup_basemaps"}
+    _CLI_ARGS = {"region": "setup_mesh"}
     _CONF = "imod.run"  # FIXME default iMOD run  (simulation configuration) file
     _DATADIR = DATADIR
-    # 
+    #
     _ATTRS = {}
 
     def __init__(
         self,
-        root=None,
-        mode="w",
-        config_fn="imod.run",
-        data_libs=None,
-        deltares_data=None,
-        artifact_data=None,
+        root: str = None,
+        mode: str = "w",
+        config_fn: str = None,
+        data_libs: List[str] = None,
         logger=logger,
     ):
         """
@@ -55,120 +56,72 @@ class ImodModel(Model):
         sources: dict
             Library with references to data sources
         """
-
         super().__init__(
             root=root,
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            deltares_data=deltares_data,
-            artifact_data=artifact_data,
             logger=logger,
         )
 
-    def setup_basemaps(self):
-        # FIXME
+    # setup methods
+    def setup_grid(self, region, nlay, nrow, ncol):
+        super().setup_region(region=region)
+        # define grid
+        # calculate shape & coords
+        # idomain = xr.DataArray(np.ones(shape, dtype=int), coords=coords, dims=dims)
+        # TODO mask with region?
+        # set grid (coordinates only or dummy data)
+        # self.set_grid(idomain, 'idomain')
+
+    def setup_dis(self, top_fn, bottom_fn):
+        # NOTE: perhaps this and the above setup_mesh method can be combined
+        # read data
+        # top = self.data_catalog.get_rasterdataset(top_fn, geom=self.region, buffer=5,)
+        # bottom = self.data_catalog.get_rasterdataset(bottom_fn, geom=self.region, buffer=5,)
+        # resample to grid ??
+        # ds_dis = imod.mf6.StructuredDiscretization(
+        #     top=top, bottom=bottom, idomain=self.grid['idomain']
+        # )
+        # add data to grid
+        # self.set_grid(ds_dis, 'dis')
+        pass
+
+    def setup_recharge(self):
+        # # read data
+        # da_recharge = self.data_catalog.get_rasterdataset(recharge_fn, geom=self.region, buffer=5,)
+
+        # # transform data
+        # da_recharge = imod.regrid(da_recharge)
+
+        # # add data to forcing attribute
+        # self.set_forcing(da_recharge, 'recharge')
         pass
 
     # I/O
-    def read(self):
-        """Read the complete model schematization and configuration from file."""
-        # FIXME: remove unused functions
-        self.read_config()
-        self.read_staticmaps()
-        self.read_staticgeoms()
-        self.read_forcing()
-        self.logger.info("Model read")
+    def write_grid(self, fn: str = "grid/grid.nc", **kwargs):
+        super().write_grid(fn=fn, **kwargs)
 
-    def write(self):
-        """Write the complete model schematization and configuration to file."""
-        # FIXME: remove unused functions
-        self.logger.info(f"Writing model data to {self.root}")
-        self.write_staticmaps()
-        self.write_staticgeoms()
-        self.write_forcing()
-        self.write_states()
-        # config last; might be updated when writing maps, states or forcing
-        self.write_config()
-        # write data catalog with used data sources
-        # self.write_data_catalog()  # new in hydromt v0.4.4
-
-    def read_staticmaps(self):
-        """Read iMOD staticmaps and save to `staticmaps` attribute (xarray.Dataset).
-        """
-        # FIXME
-        # ds = imod.read()
-        # self.set_staticmaps(ds)
-
-
-    def write_staticmaps(self):
-        """Write iMOD staticmaps to model files."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # FIXME
-        # imod.write_mode(self.staticmaps)
-
-
-    def read_staticgeoms(self):
-        """Read geometry (vector) files and save to `staticgeoms` attribute (dictionary of geopandas.GeoDataFrame).
-        """
-        # For any 1D schematization, not sure this is applicable to iMOD
-        # FIXME
-        # gdf = imod.read_
-        # self.set_staticgeom(gdf, name='')
-
-
-    def write_staticgeoms(self):
-        """Write staticgeoms to model files
-        """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
+    def write_mesh(self, *args, **kwargs):
+        # NOTE this code comes from the MeshMODEL class, but can be overwritten here
+        # if self._mesh is None:
+        #     self.logger.debug("No mesh data found, skip writing.")
+        #     return
+        # self._assert_write_mode
+        # # filename
+        # _fn = join(self.root, fn)
+        # if not isdir(dirname(_fn)):
+        #     os.makedirs(dirname(_fn))
+        # self.logger.debug(f"Writing file {fn}")
+        # # ds_new = xu.UgridDataset(grid=ds_out.ugrid.grid) # bug in xugrid?
+        # ds_out = self.mesh.ugrid.to_dataset()
+        # if self.mesh.ugrid.grid.crs is not None:
+        #     # save crs to spatial_ref coordinate
+        #     ds_out = ds_out.rio.write_crs(self.mesh.ugrid.grid.crs)
+        # ds_out.to_netcdf(_fn, **kwargs)
         pass
 
-    def read_forcing(self):
-        """Read forcing files and save to `forcing` attribute (dictionary of xarray.DataArray).
-        """
-        # FIXME
-        # da = imod.read_recharge()
-        # self.set_forcing(da, name='recharge')
-        # imod.read_head()
-        # self.set_forcing(da, name='head')
-
-    def write_forcing(self):
-        """Write forcing to model files.
-        """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # FIXME
-        # imod.write_recharge()
-        # imod.write_head()
-
-    def read_states(self, crs=None):
-        """Read imod state files and save to `states` attribute (dictionary of xarray.DataArray).
-        """
-        # FIXME
-        # self.set_state()
-
-    def write_states(self):
-        """Write imod state to model files
-        """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # FIXME
-
-    def read_results(
-        self,
-    ):
-        """Read imod model results and save to `results` attribute (dictionary of xarray.DataArray).
-        """
-        # ds_results = 
-        # self.set_results(ds_results, split_dataset=True)
-
     ## model configuration
-
-    def set_crs(self, crs):
-        super(ImodModel, self).set_crs(crs)
-        self.update_spatial_attrs()
 
     def _configread(self, fn):
         # FIXME if default ini reader does not work

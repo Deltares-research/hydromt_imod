@@ -1,18 +1,19 @@
 [build-system]
-requires = ["flit_core >=3.2.0,<3.3"]
+requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
 name = "hydromt_imod"
 authors = [
     {name = "Huite Bootsma", email = "huite.bootsma@deltares.nl"},
-    {name = "Mila Mahya", email = "mila.mahya@deltares.nl"},
+    {name = "Niels Mulder", email = "neils.mulder@deltares.nl"},
 ]
 dependencies = [
+    "hydromt>=0.6.0",
     "imod",
-    "hydromt>=0.4.5",
-    "netcdf4",
+    "numpy",
     "xarray",
+    "xugrid",
 ]
 requires-python = ">=3.8"
 readme = "README.rst"
@@ -29,9 +30,9 @@ dynamic = ['version', 'description']
 
 [project.optional-dependencies]
 test = [
+	"black",
 	"pytest>=2.7.3",
 	"pytest-cov",
-	"black",
 ]
 doc = [
 	"sphinx",
@@ -50,7 +51,7 @@ target-version = ['py38']
 
 [tool.flit.sdist]
 include = ["hydromt_imod"]
-exclude = ["docs", "examples", "envs", "tests", "binder", ".github", "sandbox"]
+exclude = ["docs", "envs", "tests", "binder", ".github", "sandbox"]
 
 [tool.pytest.ini_options]
 filterwarnings = [

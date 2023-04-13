@@ -5,16 +5,11 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "hydromt_imod"
 authors = [
-    {name = "Huite Bootsma", email = "huite.bootsma@deltares.nl"},
-    {name = "Niels Mulder", email = "neils.mulder@deltares.nl"},
+    { name = "Joeri van Engelen", email = "joeri.vanengelen@deltares.nl" },
+    { name = "Huite Bootsma", email = "huite.bootsma@deltares.nl" },
+    { name = "Niels Mulder", email = "niels.mulder@deltares.nl" },
 ]
-dependencies = [
-    "hydromt>=0.6.0",
-    "imod",
-    "numpy",
-    "xarray",
-    "xugrid",
-]
+dependencies = ["hydromt>=0.6.0", "imod", "numpy", "xarray>2023.03.0", "xugrid"]
 requires-python = ">=3.8"
 readme = "README.rst"
 classifiers = [
@@ -29,14 +24,8 @@ classifiers = [
 dynamic = ['version', 'description']
 
 [project.optional-dependencies]
-test = [
-	"black",
-	"pytest>=2.7.3",
-	"pytest-cov",
-]
-doc = [
-	"sphinx",
-]
+test = ["black", "pytest>=2.7.3", "pytest-cov"]
+doc = ["sphinx"]
 
 [project.urls]
 Documentation = "https://deltares.github.io/hydromt_imod/"

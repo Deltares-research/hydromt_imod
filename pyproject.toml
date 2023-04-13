@@ -9,7 +9,7 @@ authors = [
     { name = "Huite Bootsma", email = "huite.bootsma@deltares.nl" },
     { name = "Niels Mulder", email = "niels.mulder@deltares.nl" },
 ]
-dependencies = ["hydromt>=0.6.0", "imod", "numpy", "xarray>2023.03.0", "xugrid"]
+dependencies = ["hydromt>=0.6.0", "imod", "numpy", "xarray>2023.04.0", "xugrid"]
 requires-python = ">=3.8"
 readme = "README.rst"
 classifiers = [

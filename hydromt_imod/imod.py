@@ -129,9 +129,9 @@ class ImodModel(GridModel):
 
         self.set_grid(grid_2d, "grid_2d")
 
-    def setup_dem(self, dem_fn):
+    def setup_dem(self, hydrography_fn):
         da = self.data_catalog.get_rasterdataset(
-            dem_fn,
+            hydrography_fn,
             geom=self.region,
             buffer=2,
             variables="elevtn",
@@ -250,8 +250,15 @@ class ImodModel(GridModel):
         recharge = xr.Dataset(data_vars={"rate": rate})
         self.set_forcing(recharge, "recharge", split_dataset=False)
 
-    #    def setup_config(self):
-    #        pass
+    def setup(self, region: dict, res: float, crs: int = "utm"):
+        self.setup_grid(region, res, crs)
+        self.setup_dem(**self.config["setup_dem"])
+        self.setup_dis(**self.config["setup_dis"])
+        self.setup_initial_condition()
+        self.setup_storage(**self.config["setup_storage"])
+        self.setup_hydraulic_conductivity(**self.config["setup_hydraulic_conductivity"])
+        self.setup_recharge(**self.config["setup_recharge"])
+        self.setup_overland_flow(**self.config["setup_overland_flow"])
 
     # I/O
     def write_grid(self):
@@ -276,7 +283,7 @@ class ImodModel(GridModel):
         # heads.
         starttime = self.get_config("setup_config", "starttime")
         coords = {"time": [starttime, starttime + pd.DateOffset(seconds=1)]}
-        da_transient = xr.DataArray(data=[False, True], coords=coords, dims=("time",))
+        da_transient = xr.DataArray(data=[True, True], coords=coords, dims=("time",))
 
         gwf["sto"] = imod.mf6.SpecificStorage(
             specific_storage=self.grid["specific_storage"],
@@ -356,6 +363,11 @@ class ImodModel(GridModel):
         )
 
         sim.write(to_dir)
+
+    def write(self):
+        self.write_grid()
+        self.write_forcing()
+        self.write_model()
 
     ## model configuration
     def set_time(self, *args):

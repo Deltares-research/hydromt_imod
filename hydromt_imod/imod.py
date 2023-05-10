@@ -5,12 +5,13 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import hydromt
-import hydromt_wflow
 import imod
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
 from hydromt.models import GridModel
+from matplotlib.sankey import Sankey
 
 from . import DATADIR
 
@@ -290,6 +291,7 @@ class ImodModel(GridModel):
             specific_yield=0.0,
             transient=da_transient,
             convertible=0,
+            save_flows=True,
         )
 
         sim = imod.mf6.Modflow6Simulation(name)
@@ -379,3 +381,79 @@ class ImodModel(GridModel):
         super().read_config(config_fn=config_fn)
         self.set_time("setup_config", "starttime")
         self.set_time("setup_config", "endtime")
+
+    ## results
+    def read_results(self):
+        model_dir = Path(self.root) / "model"
+
+        hds = imod.mf6.open_hds(
+            model_dir / "gwf" / "gwf.hds", model_dir / "gwf" / "dis.dis.grb"
+        )
+        hds.load()
+        self.set_results(hds, "heads")
+
+        cbc = imod.mf6.open_cbc(
+            model_dir / "gwf" / "gwf.cbc", model_dir / "gwf" / "dis.dis.grb"
+        )
+        cbc = xr.merge([cbc])
+        self.set_results(cbc, "flows")
+
+    ## visualization
+    def plot_water_balance(self, ax, d_labels, index_time=-1):
+        """
+        Compute water balance of model and create
+        Sankey diagram of water balance.
+
+        Parameters
+        ----------
+        ax: Matplotlib.Axes
+            axis objects to put the Sankey diagram in.
+        d_labels: dict
+            Dictionary with labels
+        index_time: integer
+            Index of time to make water balance.
+            Defaults to -1, to select final timestep
+        """
+
+        def split_bdg(ds, key):
+            """Split budgets in a budget in and a budget out"""
+            ds[f"{key}_out"] = ds[f"{key}"].where(ds[f"{key}"] < 0)
+            ds[f"{key}_in"] = ds[f"{key}"].where(ds[f"{key}"] > 0)
+            ds = ds.drop(f"{key}")
+            return ds
+
+        def is_zero_flow(flow):
+            """Return if scalar is zero flow"""
+            return np.isclose(flow, 0.0) or np.isnan(flow)
+
+        cbc_end = self.results["flows"].isel(time=index_time)
+        cbc_sum = cbc_end.sum()
+        cbc_sum = split_bdg(cbc_sum, "sto-ss")
+
+        labels = list(d_labels.values())
+        flows = [cbc_sum[varname].values for varname in d_labels.keys()]
+
+        labels, flows = zip(
+            *[
+                (label, flow)
+                for label, flow in zip(labels, flows)
+                if not is_zero_flow(flow)
+            ]
+        )
+
+        n = int(np.ceil(len(flows) / 3))
+        orientations = np.tile([1, -1, 0], n)[: len(flows)]
+
+        sankey = Sankey(
+            ax=ax,
+            flows=flows,
+            orientations=orientations,
+            labels=labels,
+            scale=1 / max(flows) * 0.4,
+            unit=r" $m^3/d$",
+            pathlengths=0.3,
+            offset=0.25,
+            format="%.1e",
+        ).finish()
+
+        plt.axis("off")

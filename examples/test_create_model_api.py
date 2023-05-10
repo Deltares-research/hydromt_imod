@@ -36,16 +36,43 @@ with imod.util.cd(model_dir):
     subprocess.run("mf6 .")
 
 # %% Read and load heads
-hds = imod.mf6.open_hds(
-    model_dir / "gwf" / "gwf.hds", model_dir / "gwf" / "dis.dis.grb"
-)
-hds.load()
+mod.read_results()
 
-# %% Plot
-hds_selected = hds.sel(layer=1)
+# %% Select outputs to be plotted
+hds_selected = mod.results["heads"].sel(layer=1)
 
-diff = hds_selected.isel(time=-1) - hds_selected.isel(time=0)
+start_head = hds_selected.isel(time=0)
+final_head = hds_selected.isel(time=-1)
+diff = final_head - start_head
 
-diff.plot.imshow()
+# %% Plot heads
+import matplotlib.pyplot as plt
+
+
+def plot_data(da, title):
+    fig, ax = plt.subplots()
+    da.plot.imshow(ax=ax)
+    ax.set_title(title)
+    plt.show()
+
+
+plot_data(start_head, "starting head")
+plot_data(final_head, "final head")
+plot_data(diff, "head difference")
+
+# %% Plot water balance
+d_labels = {
+    "olf": "Dunnian runoff",
+    "rch": "Recharge",
+    "sto-ss_in": "Storage in",
+    "sto-ss_out": "Storage out",
+}
+
+fig, ax = plt.subplots()
+mod.plot_water_balance(ax, d_labels)
+ax.set_title("water balance")
+plt.tight_layout()
+plt.show()
+
 
 # %%

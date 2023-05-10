@@ -8,8 +8,8 @@ dependencies:
   - affine
   - black
   - bottleneck
-  - cftime>=1
-  - contextily>=1
+  - cftime >=1
+  - contextily >=1
   - cytoolz
   - dask
   - geopandas
@@ -17,11 +17,12 @@ dependencies:
   - hydromt
   - python-graphviz
   - flopy
+  - imod >=0.13.1
   - jinja2
   - matplotlib
   - meshzoo
   - netcdf4
-  - numba>=0.50
+  - numba >=0.50
   - numpy
   - pandas
   - pooch
@@ -34,18 +35,18 @@ dependencies:
   - pytest
   - pytest-benchmark
   - pytest-cov
-  - python>=3.7,<3.9
+  - python >=3.7,<3.11
   - pyvista
-  - rasterio>=1.0
+  - rasterio >=1.0
   - scipy
   - setuptools_scm
-  - scooby<=0.5.7
+  - scooby
   - sphinx
   - sphinx-gallery
   - toolz
   - tqdm
   - twine
-  - vtk>=9.0
-  - xarray>=0.15
+  - vtk >=9.0
+  - xarray >=2023.04.0
   - xugrid
   - zarr
